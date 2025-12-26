@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For You, Diya</title>
+    <style>
+        /* --- CSS STYLING SECTION --- */
+        :root {
+            --primary-bg: #fff5f7; /* Soft aesthetic pinkish-white */
+            --text-main: #4a4a4a; /* Mature dark grey */
+            --accent: #d4a373;    /* Cinematic gold/brown accent */
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            font-family: 'Georgia', serif; /* Elegant, mature font */
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden; /* Prevents scrolling for the booklet feel */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Background Cinematic Canvas */
+        #visualsCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none; /* Allows clicking through animations */
+        }
+
+        /* Booklet Container */
+        .booklet {
+            position: relative;
+            width: 90%;
+            max-width: 400px;
+            height: 550px;
+            z-index: 10;
+            perspective: 1000px;
+        }
+
+        /* Page Styling */
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--card-bg);
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.02);
+            transition: transform 0.6s ease, opacity 0.6s ease;
+        }
+
+        .page.active {
+            display: flex;
+            animation: fadeInSlide 0.8s forwards;
+        }
+
+        @keyframes fadeInSlide {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Content Styling */
+        .letter-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: var(--text-main);
+        }
+
+        .shayari {
+            font-style: italic;
+            font-size: 0.95rem;
+            color: var(--accent);
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        /* Navigation Buttons */
+        .nav-container {
+            position: absolute;
+            bottom: -60px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            background: none;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Music Icon */
+        #music-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Hidden Audio Element */
+        #bg-audio { display: none; }
+        #external-music-frame { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="visualsCanvas"></canvas>
+
+    <div id="music-toggle" onclick="toggleMusic()">🎵</div>
+
+    <audio id="bg-audio" loop>
+        <source src="https://open.spotify.com/track/4sgYmcu4FKb1ZC6qBlxMiw?si=UcOWEG4RTu2X-_FOcmWq7A" type="audio/mpeg">
+    </audio>
+    <div id="external-music-frame"></div>
+
+    <div class="booklet" id="booklet">
+        
+        <div class="page active" id="page-1">
+            <div class="letter-text">
+                <strong>Hello Diya,</strong><br><br>
+                Hum bachpan se saath nahi the, shayad tab humne socha bhi nahi tha ki hum kabhi milenge.
+            </div>
+            <div class="shayari">
+                "Kuch rishte upar wala banata hai,<br>
+                Aur unhe nibhana humari zimmedari hoti hai."
+            </div>
+        </div>
+
+        <div class="page" id="page-2">
+            <div class="letter-text">
+                Lekin ab jab hum mile hain, toh ye mera waada hai ki aage hamesha saath rahenge. 
+                You are never alone in this journey.
+            </div>
+            <div class="shayari">
+                "Milna kismat thi meri,<br>
+                Par dosti nibhana faisla hai mera."
+            </div>
+        </div>
+
+        <div class="page" id="page-3">
+            <div class="letter-text" style="font-weight: bold; color: #b38b6d;">
+                “Sukh me saath rahunga ya nahi ye shayad time batayega,<br><br>
+                lekin dukh me main hamesha tumhare saath rahunga.”
+            </div>
+            <div class="shayari">
+                "Dosti me sukoon hai,<br>
+                Aur tum wahi sukoon ho."
+            </div>
+        </div>
+
+        <div class="page" id="page-4">
+            <div class="letter-text">
+                Hamesha aise hi muskuraate rehna. 
+                Keep being the amazing person you are. This is just a small reminder that you are special.
+            </div>
+            <div class="shayari">
+                "Waqt badlega, par ye dosti nahi...<br>
+                Always here for you, Diya."
+            </div>
+        </div>
+
+        <div class="nav-container">
+            <button class="btn" id="prevBtn" onclick="prevPage()" disabled>Previous</button>
+            <span id="pageNumbers" style="font-size: 0.8rem; color: #999;">Page 1 / 4</span>
+            <button class="btn" id="nextBtn" onclick="nextPage()">Next</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- JAVASCRIPT LOGIC SECTION --- */
+
+        // 1. DATA CONFIGURATION (Edit values here)
+        const totalPages = 4;
+        let currentPage = 1;
+        let isMuted = false;
+        let musicStarted = false;
+
+        // EDIT THIS: To use YouTube or Spotify instead of MP3
+        // If it's a direct MP3 link, keep it in the <source> tag above.
+        // For YouTube/Spotify, paste the "Embed" link here:
+        const externalMusicLink = ""; 
+
+        // 2. PAGE TURNING SYSTEM
+        function updateUI() {
+            // Toggle pages
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page-${currentPage}`).classList.add('active');
+
+            // Update Page Numbers
+            document.getElementById('pageNumbers').innerText = `Page ${currentPage} / ${totalPages}`;
+
+            // Button states
+            document.getElementById('prevBtn').disabled = (currentPage === 1);
+            document.getElementById('nextBtn').disabled = (currentPage === totalPages);
+
+            // Trigger Fireworks on the emotional climax page (Page 3)
+            if(currentPage === 3) {
+                launchFireworks();
+            }
+        }
+
+        function nextPage() {
+            if(currentPage < totalPages) {
+                currentPage++;
+                updateUI();
+                startMusicOnInteraction(); // Ensures music starts on first button click
+            }
+        }
+
+        function prevPage() {
+            if(currentPage > 1) {
+                currentPage--;
+                updateUI();
+            }
+        }
+
+        // 3. MUSIC SYSTEM (Browser-Safe Autoplay)
+        const audio = document.getElementById('bg-audio');
+
+        function startMusicOnInteraction() {
+            if(!musicStarted) {
+                audio.play().catch(err => {
+                    console.log("Waiting for user gesture to play audio...");
+                });
+                musicStarted = true;
+            }
+        }
+
+        function toggleMusic() {
+            if (isMuted) {
+                audio.muted = false;
+                audio.play();
+                document.getElementById('music-toggle').innerText = "🎵";
+                isMuted = false;
+            } else {
+                audio.muted = true;
+                document.getElementById('music-toggle').innerText = "🔇";
+                isMuted = true;
+            }
+        }
+
+        // 4. CINEMATIC VISUALS (Flowers & Fireworks)
+        const canvas = document.getElementById('visualsCanvas');
+        const ctx = canvas.getContext('2d');
+        let atoms = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Flower Petal / Dust Effect
+        class Atom {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 + 0.5;
+                this.color = 'rgba(212, 163, 115, 0.3)'; // Gold dust
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if(this.y > canvas.height) this.y = -10;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for(let i=0; i<50; i++) { atoms.push(new Atom()); }
+
+        function animate() {
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            atoms.forEach(a => { a.update(); a.draw(); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Gentle Fireworks Trigger
+        function launchFireworks() {
+            for(let i=0; i<15; i++) {
+                setTimeout(() => {
+                    createFirework(Math.random() * canvas.width, Math.random() * canvas.height);
+                }, i * 200);
+            }
+        }
+
+        function createFirework(x, y) {
+            let particles = 20;
+            for(let i=0; i<particles; i++) {
+                let p = new Atom();
+                p.x = x; p.y = y;
+                p.speedX = (Math.random() - 0.5) * 6;
+                p.speedY = (Math.random() - 0.5) * 6;
+                p.color = 'rgba(255, 182, 193, 0.8)'; // Pinkish celebration
+                atoms.push(p);
+                // Clean up firework particles after 2 seconds
+                setTimeout(() => {
+                    const index = atoms.indexOf(p);
+                    if (index > -1) atoms.splice(index, 1);
+                }, 2000);
+            }
+        }
+
+        // Initialize view
+        updateUI();
+
+    </script>
+</body>
+</html>
